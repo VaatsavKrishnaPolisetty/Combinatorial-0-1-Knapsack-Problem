@@ -1,0 +1,8 @@
+topology,qubits,edges,diameter,avg_degree
+A_linear (ref),5,4,4,1.6
+A_tree (ref),5,4,3,1.6
+A_ring (ours-alt),5,5,2,2.0
+A_bowtie (ours),5,6,2,2.4
+B_heavyhex (ref),9,12,4,2.67
+B_grid (ours-alt),9,12,4,2.67
+B_wheel (ours),9,16,2,3.56

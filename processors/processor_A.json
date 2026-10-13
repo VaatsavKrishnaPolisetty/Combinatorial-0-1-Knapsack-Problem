@@ -1,0 +1,55 @@
+{
+  "name": "Processor A (A_bowtie (ours))",
+  "num_qubits": 5,
+  "coupling_map": [
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      3,
+      4
+    ]
+  ],
+  "basis_gates": [
+    "rz",
+    "sx",
+    "x",
+    "cx"
+  ],
+  "diameter": 2,
+  "avg_degree": 2.4,
+  "noise": {
+    "1q_depolarizing": 0.001,
+    "cx_depolarizing": 0.005,
+    "readout": 0.01
+  },
+  "transpile": {
+    "optimization_level": 1,
+    "seed": 42,
+    "shots": 4096
+  },
+  "rationale": "The QUBO penalty (w.x)^2 couples every pair of items (K5). Two triangles sharing a degree-4 hub make 6 of 10 pairs directly adjacent with only 6 edges (diameter 2 vs 4 for a chain).",
+  "reference_baselines": [
+    "A_linear (ref)",
+    "A_tree (ref)",
+    "A_ring (ours-alt)",
+    "A_bowtie (ours)"
+  ]
+}
