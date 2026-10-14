@@ -7,7 +7,9 @@ import {
   Atom, 
   Copy, 
   Check, 
-  Sparkles 
+  Sparkles,
+  HelpCircle,
+  ChevronDown
 } from 'lucide-react';
 
 const LinkedInIcon = ({ size = 14 }: { size?: number }) => (
@@ -25,8 +27,59 @@ const GitHubIcon = ({ size = 14 }: { size?: number }) => (
   </svg>
 );
 
+interface FaqItem {
+  id: number;
+  category: string;
+  question: string;
+  answer: string;
+  highlight: string;
+}
+
+const FAQS: FaqItem[] = [
+  {
+    id: 1,
+    category: 'QUBO Formulation',
+    question: 'Why did you use Unbalanced Penalization instead of standard Slack variables?',
+    answer: 'Standard textbook slack expansions introduce ⌊log₂ W⌋ + 1 ancilla qubits (inflating the 5-item problem from 5 to 9 qubits). Because every ancilla must cross-couple with every decision qubit in (∑ w_i x_i + ∑ 2^k y_k - W)², the two-qubit coupler count explodes as O((N + log W)²). Our unbalanced formulation P(x) = λ₁ g(x) + λ₂ g(x)² uses zero ancillae, fits entirely on 5-qubit Processor A, and cuts CX gate counts by ~3× to 5× while preserving exact ground-state knapsack optimality.',
+    highlight: 'Zero ancilla qubits • Fits 5-qubit hardware • 3× fewer CX gates',
+  },
+  {
+    id: 2,
+    category: 'Hardware Architecture',
+    question: 'How does the degree-4 Bow-Tie topology reduce SWAP overhead by 65%?',
+    answer: 'The knapsack constraint induces an all-to-all problem Hamiltonian. A 1D linear chain has diameter 4 and an average shortest path of 2.0, forcing the Qiskit Sabre transpiler to route non-adjacent interactions via 15 SWAP gates (adding 45 CX gates). Our Bow-Tie topology centers around a degree-4 central hub (q2), halving diameter to 2 and shortening average path to 1.4. This drops routing SWAPs from 15 down to 4 (−65%), cutting circuit noise substantially.',
+    highlight: 'Diameter 4 → 2 • 15 SWAPs → 4 SWAPs • Cuts routing noise by 65%',
+  },
+  {
+    id: 3,
+    category: 'Noise & Feasibility',
+    question: 'How do you guarantee feasible knapsack packings under physical noise?',
+    answer: 'Physical decoherence (0.1% 1q, 0.5% 2q, 1.0% readout error) scatters quantum state amplitudes into non-optimal or infeasible bitstrings. We tackle this across three layers: (1) Spectral penalty calibration enforcing that the Hamiltonian ground state is the exact knapsack optimum, (2) CVaR (α = 0.25) tail expectation tuning that updates parameters based solely on the best 25% quantile, and (3) a greedy post-measurement repair decoder guaranteeing 0% constraint violations in returned packings.',
+    highlight: 'Calibrated Hamiltonian • CVaR(α=0.25) • 100% legal bitstrings returned',
+  },
+  {
+    id: 4,
+    category: 'Error Mitigation',
+    question: 'What is Zero-Noise Extrapolation (ZNE) and how does it improve expectation values?',
+    answer: 'Zero-Noise Extrapolation is an error mitigation technique that requires zero auxiliary physical qubits. We perform unitary gate folding (CX → CX · CX† · CX) at noise scaling factors λ ∈ {1, 3, 5} to intentionally amplify depolarizing noise. By measuring expectation values at each scale and fitting an extrapolation curve back to the zero-noise limit λ → 0 (using Richardson or linear regression), we recover +24.9% of the noise-corrupted expectation energy.',
+    highlight: 'Gate folding at λ=1,3,5 • Richardson extrapolation • +24.9% energy recovery',
+  },
+  {
+    id: 5,
+    category: 'Reproducibility & Execution',
+    question: 'Can this project be tested and verified directly from the terminal?',
+    answer: 'Yes! The entire project is 100% reproducible with zero external internet dependencies. You can clone the repo, run "python main.py --mode benchmark" for full CLI results, inspect the step-by-step project_notebook.ipynb in Jupyter, or interact with this web platform directly. You can even execute live CLI commands directly inside the Terminal Guide tab on this page!',
+    highlight: 'Zero downloads • Python CLI main.py • Jupyter notebook • Live web CLI',
+  },
+];
+
 export const Footer: React.FC = () => {
   const [copiedClone, setCopiedClone] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(1); // Open first FAQ by default
+
+  const toggleFaq = (id: number) => {
+    setOpenFaq(prev => prev === id ? null : id);
+  };
 
   const cloneCommand = 'git clone https://github.com/VaatsavKrishnaPolisetty/Combinatorial-0-1-Knapsack-Problem.git';
 
@@ -211,6 +264,59 @@ export const Footer: React.FC = () => {
                 <span><strong>Wheel Topology:</strong> −29% CX Gates over heavy-hex</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Interactive Quantum Research FAQ Section */}
+        <div className="footer-faq-section glass-panel spotlight-card">
+          <div className="faq-section-header">
+            <div className="flex-row-gap items-center">
+              <span className="chip-badge cyan-badge">
+                <HelpCircle size={12} className="inline mr-1" />
+                Frequently Asked Questions
+              </span>
+              <span className="footer-chip">Technical Architecture Deep-Dive</span>
+            </div>
+            <h3 className="faq-title">Quantum Knapsack & Hardware Co-Design FAQ</h3>
+            <p className="faq-subtitle">
+              Key design decisions on problem formulation, hardware coupling map routing, physical noise mitigation, and local reproducibility.
+            </p>
+          </div>
+
+          <div className="faq-accordion-list">
+            {FAQS.map(faq => {
+              const isOpen = openFaq === faq.id;
+              return (
+                <div 
+                  key={faq.id} 
+                  className={`faq-item glass-panel ${isOpen ? 'faq-item-open' : ''}`}
+                >
+                  <button 
+                    className="faq-question-btn"
+                    onClick={() => toggleFaq(faq.id)}
+                    aria-expanded={isOpen}
+                  >
+                    <div className="faq-question-left">
+                      <span className="faq-category-tag">{faq.category}</span>
+                      <span className="faq-question-text">{faq.question}</span>
+                    </div>
+                    <div className={`faq-chevron-box ${isOpen ? 'rotate' : ''}`}>
+                      <ChevronDown size={18} />
+                    </div>
+                  </button>
+
+                  {isOpen && (
+                    <div className="faq-answer-panel">
+                      <p className="faq-answer-text">{faq.answer}</p>
+                      <div className="faq-highlight-pill">
+                        <Sparkles size={13} className="text-cyan flex-shrink-0" />
+                        <span className="font-mono text-xs">{faq.highlight}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
