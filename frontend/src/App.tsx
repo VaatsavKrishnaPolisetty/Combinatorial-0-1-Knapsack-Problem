@@ -6,6 +6,7 @@ import { TopologyExplorer } from './components/TopologyExplorer';
 import { BenchmarkLab } from './components/BenchmarkLab';
 import { TerminalGuide } from './components/TerminalGuide';
 import { ResearchInsights } from './components/ResearchInsights';
+import { Footer } from './components/Footer';
 import type { SolveResponse, TopologyData, RoutingRobustness } from './types';
 import './App.css';
 
@@ -159,15 +160,7 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="footer-bar">
-        <div className="footer-content">
-          <span>Qiskit Fall Fest 2026 · SRM University-AP · Phase 1</span>
-          <span className="footer-sep">·</span>
-          <span>Algorithms: QAOA, Unbalanced QUBO, Aer Simulator</span>
-          <span className="footer-sep">·</span>
-          <span className="text-muted font-mono">Hardware Co-Design (Processor A Bow-tie ★ / Processor B Wheel ★)</span>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

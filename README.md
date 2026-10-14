@@ -254,7 +254,17 @@ where $x^*$ is the brute-force optimum, $x_{\text{GS}}$ is the ground state of $
 
 ---
 
-## 👨‍💻 Author & Acknowledgements
-- **Author:** P.L.K. Vaatsav Krishna ([@VaatsavKrishnaPolisetty](https://github.com/VaatsavKrishnaPolisetty))
-- **Event:** Qiskit Fall Fest 2026, SRM University-AP
-- Built with [Qiskit](https://qiskit.org), [FastAPI](https://fastapi.tiangolo.com), [React](https://react.dev), and [Lucide Icons](https://lucide.dev).
+## 👨‍💻 Research Team & Acknowledgements
+
+- **P L K Vaatsav Krishna**
+  - **Role:** Quantum Algorithm & Architecture Lead
+  - **Institution:** Vignan's Foundation For Science Technology and Research (VFSTR) · CSE 2nd Year
+  - **Profiles:** [LinkedIn](https://www.linkedin.com/in/p-l-k-vaatsav-krishna-1a5274394/) · [GitHub](https://github.com/VaatsavKrishnaPolisetty)
+
+- **P V Kalyan**
+  - **Role:** Quantum Research & Hardware Optimization
+  - **Institution:** Vignan's Foundation For Science Technology and Research (VFSTR) · CSE 2nd Year
+  - **Profiles:** [LinkedIn](https://www.linkedin.com/in/kalyan-padamata-3a811339b)
+
+- **Competition Track:** **Qiskit Fall Fest 2026** · Hosted by **SRM University-AP** (Phase 1 · Problem PS-O3)
+- Built with [Qiskit](https://qiskit.org), [Qiskit Aer](https://qiskit.org), [FastAPI](https://fastapi.tiangolo.com), and [React 19](https://react.dev).
