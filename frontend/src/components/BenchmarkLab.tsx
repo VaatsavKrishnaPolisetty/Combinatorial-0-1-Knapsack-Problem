@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Activity, Zap, Play } from 'lucide-react';
+import { Activity, Zap, Play, Layers, TrendingUp, BarChart2 } from 'lucide-react';
 import type { BenchmarkRow } from '../types';
 import { AnimatedNumber } from './AnimatedNumber';
+import { ZneMitigationWidget } from './ZneMitigationWidget';
+import { ErrorWaterfallWidget } from './ErrorWaterfallWidget';
+import { ScalabilityHorizonWidget } from './ScalabilityHorizonWidget';
 
 interface BenchmarkLabProps {
   benchmarks: {
@@ -11,6 +14,7 @@ interface BenchmarkLabProps {
 }
 
 export const BenchmarkLab: React.FC<BenchmarkLabProps> = ({ benchmarks }) => {
+  const [activeTab, setActiveTab] = useState<'matrix' | 'zne' | 'waterfall' | 'scalability' | 'all'>('matrix');
   const [selectedP, setSelectedP] = useState<number>(2);
   const [selectedFormulation, setSelectedFormulation] = useState<string>('all');
   const [noiseMultiplier, setNoiseMultiplier] = useState<number>(1);
@@ -52,8 +56,78 @@ export const BenchmarkLab: React.FC<BenchmarkLabProps> = ({ benchmarks }) => {
 
   return (
     <div className="benchmarks-container">
-      {/* Header Banner */}
-      <div className="glass-panel bench-header-card spotlight-card">
+      {/* Benchmark Sub-Navigation Bar */}
+      <div className="bench-section-nav glass-panel spotlight-card">
+        <button
+          className={`bench-nav-btn ${activeTab === 'matrix' ? 'active' : ''}`}
+          onClick={() => setActiveTab('matrix')}
+        >
+          <Activity size={15} />
+          <span>Routing & Noise Matrix</span>
+        </button>
+
+        <button
+          className={`bench-nav-btn ${activeTab === 'zne' ? 'active' : ''}`}
+          onClick={() => setActiveTab('zne')}
+        >
+          <Zap size={15} className="text-cyan" />
+          <span>ZNE Error Mitigation Lab</span>
+          <span className="chip-badge cyan-badge">Feature 1</span>
+        </button>
+
+        <button
+          className={`bench-nav-btn ${activeTab === 'waterfall' ? 'active' : ''}`}
+          onClick={() => setActiveTab('waterfall')}
+        >
+          <Layers size={15} className="text-violet" />
+          <span>Error Attribution Waterfall</span>
+          <span className="chip-badge cyan-badge">Feature 3</span>
+        </button>
+
+        <button
+          className={`bench-nav-btn ${activeTab === 'scalability' ? 'active' : ''}`}
+          onClick={() => setActiveTab('scalability')}
+        >
+          <TrendingUp size={15} className="text-emerald" />
+          <span>Scalability Horizon</span>
+          <span className="chip-badge cyan-badge">Feature 4</span>
+        </button>
+
+        <button
+          className={`bench-nav-btn ${activeTab === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveTab('all')}
+        >
+          <BarChart2 size={15} />
+          <span>Complete Research Suite (All)</span>
+        </button>
+      </div>
+
+      {/* Feature 1: ZNE Error Mitigation Lab */}
+      {(activeTab === 'zne' || activeTab === 'all') && (
+        <div className="bench-module-section">
+          <ZneMitigationWidget />
+        </div>
+      )}
+
+      {/* Feature 3: Quantum Error Attribution Waterfall */}
+      {(activeTab === 'waterfall' || activeTab === 'all') && (
+        <div className="bench-module-section">
+          <ErrorWaterfallWidget />
+        </div>
+      )}
+
+      {/* Feature 4: Empirical Scalability Horizon */}
+      {(activeTab === 'scalability' || activeTab === 'all') && (
+        <div className="bench-module-section">
+          <ScalabilityHorizonWidget />
+        </div>
+      )}
+
+      {/* Matrix & Noise Decay Lab */}
+      {(activeTab === 'matrix' || activeTab === 'all') && (
+        <>
+          {/* Header Banner */}
+          <div className="glass-panel bench-header-card spotlight-card">
         <div className="bench-header-meta">
           <div className="chip-badge">Noisy Aer Simulator Benchmarking</div>
           <h2>Hardware Routing & Noise Performance Matrix</h2>
@@ -336,6 +410,8 @@ export const BenchmarkLab: React.FC<BenchmarkLabProps> = ({ benchmarks }) => {
           </div>
         </div>
       </div>
-    </div>
+    </>
+  )}
+</div>
   );
 };

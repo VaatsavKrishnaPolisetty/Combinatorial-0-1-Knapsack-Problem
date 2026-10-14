@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Cpu, Network, ShieldAlert, Zap, Radio } from 'lucide-react';
+import { Cpu, Network, ShieldAlert, Zap, Radio, Sliders } from 'lucide-react';
 import type { TopologyData, RoutingRobustness } from '../types';
+import { ProcessorCadSandbox } from './ProcessorCadSandbox';
 
 interface TopologyExplorerProps {
   topologies: Record<string, TopologyData>;
@@ -8,6 +9,7 @@ interface TopologyExplorerProps {
 }
 
 export const TopologyExplorer: React.FC<TopologyExplorerProps> = ({ topologies, robustness }) => {
+  const [viewMode, setViewMode] = useState<'reference' | 'cad'>('reference');
   const [selectedGroup, setSelectedGroup] = useState<'A' | 'B'>('A');
   const [activeTopologyKey, setActiveTopologyKey] = useState<string>('A_bowtie (ours)');
   const [hoveredNodeId, setHoveredNodeId] = useState<number | null>(null);
@@ -37,50 +39,73 @@ export const TopologyExplorer: React.FC<TopologyExplorerProps> = ({ topologies, 
 
   return (
     <div className="topology-container">
-      {/* Top Selector Banner */}
-      <div className="glass-panel topo-header-card spotlight-card">
-        <div className="topo-group-switch">
-          <button
-            className={`group-switch-btn ${selectedGroup === 'A' ? 'active' : ''}`}
-            onClick={() => {
-              setSelectedGroup('A');
-              setActiveTopologyKey('A_bowtie (ours)');
-            }}
-          >
-            <Cpu size={18} />
-            <div>
-              <div className="group-btn-title">Processor A (5 Qubits)</div>
-              <div className="group-btn-sub">Bow-Tie ★ vs Linear Chain</div>
-            </div>
-          </button>
-
-          <button
-            className={`group-switch-btn ${selectedGroup === 'B' ? 'active' : ''}`}
-            onClick={() => {
-              setSelectedGroup('B');
-              setActiveTopologyKey('B_wheel (ours)');
-            }}
-          >
-            <Network size={18} />
-            <div>
-              <div className="group-btn-title">Processor B (9 Qubits)</div>
-              <div className="group-btn-sub">Wheel ★ vs Heavy-Hex Architecture</div>
-            </div>
-          </button>
-        </div>
-
-        {/* Advantage Highlight */}
-        <div className="topo-summary-stat">
-          <div className="stat-highlight-pill animate-pulse-subtle">
-            <Zap size={15} className="text-cyan" />
-            <span>Co-Design Impact: <strong>-{cxReduction}% CX Gates</strong> & <strong>-{swapReduction}% SWAPs</strong></span>
-          </div>
-        </div>
+      {/* Top Mode Selector: Reference vs CAD Sandbox */}
+      <div className="topo-mode-bar glass-panel spotlight-card">
+        <button
+          className={`topo-mode-tab-btn ${viewMode === 'reference' ? 'active' : ''}`}
+          onClick={() => setViewMode('reference')}
+        >
+          <Cpu size={16} />
+          <span>Reference Processor Topologies</span>
+        </button>
+        <button
+          className={`topo-mode-tab-btn ${viewMode === 'cad' ? 'active' : ''}`}
+          onClick={() => setViewMode('cad')}
+        >
+          <Sliders size={16} />
+          <span>Interactive CAD & Coupling Sandbox (Live Wiring)</span>
+          <span className="chip-badge cyan-badge">Feature 2 • Real-Time Qiskit</span>
+        </button>
       </div>
 
-      <div className="topo-main-grid">
-        {/* Left: SVG Canvas Graph & Architecture Details */}
-        <div className="glass-panel topo-visual-panel spotlight-card">
+      {viewMode === 'cad' ? (
+        <ProcessorCadSandbox />
+      ) : (
+        <>
+          {/* Top Selector Banner */}
+          <div className="glass-panel topo-header-card spotlight-card">
+            <div className="topo-group-switch">
+              <button
+                className={`group-switch-btn ${selectedGroup === 'A' ? 'active' : ''}`}
+                onClick={() => {
+                  setSelectedGroup('A');
+                  setActiveTopologyKey('A_bowtie (ours)');
+                }}
+              >
+                <Cpu size={18} />
+                <div>
+                  <div className="group-btn-title">Processor A (5 Qubits)</div>
+                  <div className="group-btn-sub">Bow-Tie ★ vs Linear Chain</div>
+                </div>
+              </button>
+
+              <button
+                className={`group-switch-btn ${selectedGroup === 'B' ? 'active' : ''}`}
+                onClick={() => {
+                  setSelectedGroup('B');
+                  setActiveTopologyKey('B_wheel (ours)');
+                }}
+              >
+                <Network size={18} />
+                <div>
+                  <div className="group-btn-title">Processor B (9 Qubits)</div>
+                  <div className="group-btn-sub">Wheel ★ vs Heavy-Hex Architecture</div>
+                </div>
+              </button>
+            </div>
+
+            {/* Advantage Highlight */}
+            <div className="topo-summary-stat">
+              <div className="stat-highlight-pill animate-pulse-subtle">
+                <Zap size={15} className="text-cyan" />
+                <span>Co-Design Impact: <strong>-{cxReduction}% CX Gates</strong> & <strong>-{swapReduction}% SWAPs</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div className="topo-main-grid">
+            {/* Left: SVG Canvas Graph & Architecture Details */}
+            <div className="glass-panel topo-visual-panel spotlight-card">
           {/* Topology Selector Tabs */}
           <div className="topo-subtabs">
             {currentKeys.map(k => {
@@ -347,6 +372,8 @@ export const TopologyExplorer: React.FC<TopologyExplorerProps> = ({ topologies, 
           </div>
         </div>
       </div>
-    </div>
+    </>
+  )}
+</div>
   );
 };
