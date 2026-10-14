@@ -4,6 +4,19 @@ export interface KnapsackItem {
   weight: number;
 }
 
+export interface TelemetryData {
+  python_version: string;
+  qiskit_version: string;
+  qiskit_aer_version: string;
+  pid: number;
+  platform?: string;
+  memory_mb: number;
+  duration_ms: number;
+  cobyla_iterations: number;
+  timestamp: string;
+  host: string;
+}
+
 export interface SolveResponse {
   num_items: number;
   capacity: number;
@@ -13,6 +26,10 @@ export interface SolveResponse {
   expected_energy: number;
   angles: number[];
   shots: number;
+  duration_ms?: number;
+  cli_command?: string;
+  terminal_output?: string;
+  telemetry?: TelemetryData;
   optimal_solution: {
     bitstring: string;
     items: number[];
@@ -41,6 +58,16 @@ export interface SolveResponse {
     is_feasible: boolean;
     is_optimal: boolean;
   }>;
+}
+
+export interface CliExecResult {
+  command: string;
+  stdout: string;
+  stderr: string;
+  returncode: number;
+  elapsed_ms: number;
+  pid: number;
+  timestamp: string;
 }
 
 export interface TopologyNode {

@@ -1,15 +1,90 @@
-import React, { useState } from 'react';
-import { Terminal, Copy, Check, BookOpen, AlertCircle, CheckCircle2, Monitor } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Terminal, 
+  Copy, 
+  Check, 
+  BookOpen, 
+  AlertCircle, 
+  CheckCircle2, 
+  Monitor, 
+  Play, 
+  RefreshCw, 
+  Sparkles 
+} from 'lucide-react';
 
 export const TerminalGuide: React.FC = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [osTab, setOsTab] = useState<'unix' | 'windows'>('unix');
+  const [cliInput, setCliInput] = useState<string>('python solve.py');
+  const [cliLoading, setCliLoading] = useState<boolean>(false);
+  const [cliResult, setCliResult] = useState<{
+    command: string;
+    stdout: string;
+    stderr: string;
+    returncode: number;
+    elapsed_ms: number;
+    pid: number;
+    timestamp: string;
+  } | null>(null);
+  const [copiedCliOutput, setCopiedCliOutput] = useState<boolean>(false);
 
   const handleCopy = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
+
+  const handleExecuteCli = async (cmdToRun?: string) => {
+    const cmd = cmdToRun || cliInput;
+    setCliInput(cmd);
+    setCliLoading(true);
+    try {
+      const res = await fetch('/api/cli-exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: cmd }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCliResult(data);
+      } else {
+        const err = await res.json();
+        setCliResult({
+          command: cmd,
+          stdout: '',
+          stderr: err.detail || 'Execution failed',
+          returncode: 1,
+          elapsed_ms: 0,
+          pid: 0,
+          timestamp: new Date().toLocaleTimeString(),
+        });
+      }
+    } catch (e: any) {
+      setCliResult({
+        command: cmd,
+        stdout: '',
+        stderr: e.message || 'Network error',
+        returncode: 1,
+        elapsed_ms: 0,
+        pid: 0,
+        timestamp: new Date().toLocaleTimeString(),
+      });
+    } finally {
+      setCliLoading(false);
+    }
+  };
+
+  // Run official preset on first mount
+  useEffect(() => {
+    handleExecuteCli('python solve.py');
+  }, []);
+
+  const playgroundPresets = [
+    { label: 'Official 5-Item (Benchmark)', cmd: 'python solve.py' },
+    { label: 'Custom 4-Item (Cap 9, p=2)', cmd: 'python solve.py --values 6 5 8 9 --weights 2 3 6 7 --capacity 9 --p 2' },
+    { label: 'CVaR Tail (alpha=0.25)', cmd: 'python solve.py --p 2 --cvar 0.25' },
+    { label: 'Check Qiskit & Aer Version', cmd: "python -c \"import qiskit, qiskit_aer; print('Qiskit:', qiskit.__version__, '| Aer:', qiskit_aer.__version__)\"" },
+  ];
 
   const steps = [
     {
@@ -114,6 +189,129 @@ print(f'Trained Energy: {e:.3f} | Bow-tie CX Gates: {metrics[\"cx\"]} | SWAPs: {
               <Monitor size={15} />
               <span>Windows (CMD / PowerShell)</span>
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Live Interactive Web Terminal Playground */}
+      <div className="glass-panel cli-playground-card spotlight-card">
+        <div className="playground-header">
+          <div className="playground-title-row">
+            <div className="playground-icon-wrap">
+              <Terminal size={22} className="text-cyan animate-pulse" />
+            </div>
+            <div>
+              <div className="chip-badge-cyan">Live Subprocess Execution</div>
+              <h3>Interactive Web CLI Terminal Playground</h3>
+              <p className="subtitle">
+                Test real command-line execution right now. Click a preset or type your custom arguments below to run <code className="font-mono text-cyan">python solve.py</code> directly against the active Python daemon.
+              </p>
+            </div>
+          </div>
+          <div className="playground-status-badge">
+            <span className="live-daemon-dot" />
+            <span className="font-mono text-xs">Python Daemon Active · Port 8000</span>
+          </div>
+        </div>
+
+        {/* Presets Row */}
+        <div className="playground-presets-row">
+          <span className="presets-label">Quick Presets:</span>
+          {playgroundPresets.map((p, i) => (
+            <button
+              key={i}
+              className={`preset-pill ${cliInput === p.cmd ? 'active' : ''}`}
+              onClick={() => handleExecuteCli(p.cmd)}
+              disabled={cliLoading}
+            >
+              <Sparkles size={11} className="mr-1 inline text-cyan" />
+              {p.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Command Input Bar */}
+        <div className="cli-input-bar">
+          <span className="cli-input-prompt font-mono">$</span>
+          <input
+            type="text"
+            value={cliInput}
+            onChange={(e) => setCliInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleExecuteCli()}
+            className="cli-text-input font-mono"
+            placeholder="python solve.py --values 6 5 8 9 --weights 2 3 6 7 --capacity 9"
+            disabled={cliLoading}
+          />
+          <button
+            onClick={() => handleExecuteCli()}
+            disabled={cliLoading}
+            className={`btn-cli-run ${cliLoading ? 'loading' : ''}`}
+          >
+            {cliLoading ? (
+              <>
+                <RefreshCw size={14} className="spin-icon" />
+                <span>Running...</span>
+              </>
+            ) : (
+              <>
+                <Play size={14} fill="currentColor" />
+                <span>Execute CLI</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Terminal Screen Result */}
+        <div className="cli-screen-window">
+          <div className="cli-screen-bar">
+            <div className="cli-screen-dots">
+              <span className="dot dot-red" />
+              <span className="dot dot-yellow" />
+              <span className="dot dot-green" />
+            </div>
+            <div className="cli-screen-title font-mono">
+              python-daemon · {cliResult ? `${cliResult.elapsed_ms}ms · exit:${cliResult.returncode} · PID:${cliResult.pid}` : 'ready'}
+            </div>
+            {cliResult?.stdout && (
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(cliResult.stdout);
+                  setCopiedCliOutput(true);
+                  setTimeout(() => setCopiedCliOutput(false), 2000);
+                }}
+                className="cli-copy-btn"
+              >
+                {copiedCliOutput ? <Check size={12} className="text-emerald inline mr-1" /> : <Copy size={12} className="inline mr-1" />}
+                {copiedCliOutput ? 'Copied Output' : 'Copy Output'}
+              </button>
+            )}
+          </div>
+
+          <div className="cli-screen-content font-mono">
+            <div className="cli-line cli-echo-cmd">$ {cliInput}</div>
+            {cliLoading ? (
+              <div className="cli-line cli-loading-line">
+                <RefreshCw size={13} className="spin-icon inline mr-2 text-cyan" />
+                <span>Executing Python quantum pipeline on Qiskit Aer...</span>
+              </div>
+            ) : cliResult ? (
+              <>
+                {cliResult.stdout && (
+                  <pre className="cli-pre-stdout">{cliResult.stdout}</pre>
+                )}
+                {cliResult.stderr && (
+                  <pre className="cli-pre-stderr text-rose">{cliResult.stderr}</pre>
+                )}
+                <div className="cli-line cli-complete-line">
+                  <span className="text-emerald font-semibold">✓ Process completed with code {cliResult.returncode} in {cliResult.elapsed_ms}ms</span>
+                </div>
+              </>
+            ) : (
+              <div className="cli-line text-muted">Click 'Execute CLI' or select a preset to run.</div>
+            )}
+            <div className="cli-line cli-cursor-row">
+              <span className="text-cyan">$</span> <span className="cli-cursor" />
+            </div>
           </div>
         </div>
       </div>
