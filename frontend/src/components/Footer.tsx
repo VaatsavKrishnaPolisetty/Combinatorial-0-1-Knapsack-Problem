@@ -8,7 +8,6 @@ import {
   Copy, 
   Check, 
   Sparkles,
-  HelpCircle,
   ChevronDown
 } from 'lucide-react';
 
@@ -270,13 +269,6 @@ export const Footer: React.FC = () => {
         {/* Interactive Quantum Research FAQ Section */}
         <div className="footer-faq-section glass-panel spotlight-card">
           <div className="faq-section-header">
-            <div className="flex-row-gap items-center">
-              <span className="chip-badge cyan-badge">
-                <HelpCircle size={12} className="inline mr-1" />
-                Frequently Asked Questions
-              </span>
-              <span className="footer-chip">Technical Architecture Deep-Dive</span>
-            </div>
             <h3 className="faq-title">Quantum Knapsack & Hardware Co-Design FAQ</h3>
             <p className="faq-subtitle">
               Key design decisions on problem formulation, hardware coupling map routing, physical noise mitigation, and local reproducibility.
